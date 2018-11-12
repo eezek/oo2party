@@ -1,5 +1,6 @@
 package br.edu.ulbra.election.party.service;
 
+import br.edu.ulbra.election.party.exception.GenericOutputException;
 import br.edu.ulbra.election.party.input.v1.PartyInput;
 import br.edu.ulbra.election.party.model.Party;
 import br.edu.ulbra.election.party.output.v1.GenericOutput;
@@ -8,6 +9,8 @@ import br.edu.ulbra.election.party.repository.PartyRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -23,6 +26,13 @@ public class PartyService {
     private ModelMapper modelMapper;
 
     private static final String MESSAGE_NOT_FOUND = "Not found";
+    private static final String MESSAGE_INVALID_ID = "Invalid id";
+
+    @Autowired
+    public PartyService(PartyRepository partyRepository, ModelMapper modelMapper){
+        this.partyRepository = partyRepository;
+        this.modelMapper = modelMapper;
+    }
 
     public List<PartyOutput> getAll(){
         Type partyOutputListType = new TypeToken<List<PartyOutput>>() {
@@ -35,19 +45,37 @@ public class PartyService {
     }
 
     public PartyOutput create(PartyInput partyInput) {
+        validateInput(partyInput, false);
         Party party = modelMapper.map(partyInput, Party.class);
-        party = partyRepository.save(party);
+        try{
+            party = partyRepository.save(party);
+        }catch (Exception e)
+        {
+            if(e instanceof DataIntegrityViolationException)
+                throw new GenericOutputException("Party code or number already exists.");
+        }
+
         return modelMapper.map(party, PartyOutput.class);
     }
 
     public PartyOutput update(Long partyId, PartyInput partyInput) {
+        if (partyId == null){
+            throw new GenericOutputException(MESSAGE_INVALID_ID);
+        }
+
+        validateInput(partyInput, true);
 
         Party party = byId(partyId);
-
         party.setCode(partyInput.getCode());
         party.setName(partyInput.getName());
         party.setNumber(partyInput.getNumber());
-        party = partyRepository.save(party);
+        try{
+            party = partyRepository.save(party);
+        }catch (Exception e)
+        {
+            if(e instanceof DataIntegrityViolationException)
+                throw new GenericOutputException("Party code or number already exists.");
+        }
         return modelMapper.map(party, PartyOutput.class);
     }
 
@@ -63,4 +91,8 @@ public class PartyService {
         return partyRepository.findById(partyId).orElseThrow(()-> new EntityNotFoundException(MESSAGE_NOT_FOUND));
     }
 
+    private void validateInput(PartyInput partyInput, boolean isUpdate){
+        if(partyInput.getNumber()<10 || partyInput.getNumber()>99)
+            throw new GenericOutputException("The number must have two digits");
+    }
 }

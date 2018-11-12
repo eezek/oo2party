@@ -8,3 +8,9 @@ databaseChangeLog:
       rollbackFile:
         path: "scripts/001.CREATE_TABLE_PARTY.rollback.sql"
         relativeToChangelogFile: true
+  - changeSet:
+      id: ALTER_TABLE_PARTY
+      author: gregory.flores
+      sqlFile:
+        path: "scripts/002.ALTER_TABLE_PARTY.sql"
+        relativeToChangelogFile: true

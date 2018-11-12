@@ -1,6 +1,7 @@
 package br.edu.ulbra.election.party.api.v1;
 
 import br.edu.ulbra.election.party.input.v1.PartyInput;
+import br.edu.ulbra.election.party.model.Party;
 import br.edu.ulbra.election.party.output.v1.GenericOutput;
 import br.edu.ulbra.election.party.output.v1.PartyOutput;
 import br.edu.ulbra.election.party.service.PartyService;
@@ -15,7 +16,12 @@ import java.util.List;
 @AllArgsConstructor
 public class PartyApi {
 
-    private PartyService partyService;
+    private final PartyService partyService;
+
+    public PartyApi(PartyService partyService)
+    {
+        this.partyService = partyService;
+    }
 
     @GetMapping("/")
     @ApiOperation(value = "Get parties List")
