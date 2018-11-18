@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/v1/party")
-@AllArgsConstructor
 public class PartyApi {
 
     private final PartyService partyService;
