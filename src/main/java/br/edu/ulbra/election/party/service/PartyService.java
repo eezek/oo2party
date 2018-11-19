@@ -12,7 +12,6 @@ import feign.FeignException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +31,6 @@ public class PartyService {
     private static final String MESSAGE_INVALID_ID = "Invalid id";
     private final CandidateClientService candidateClientService;
 
-    @Autowired
-    public PartyService(PartyRepository partyRepository, ModelMapper modelMapper, CandidateClientService candidateClientService){
-        this.partyRepository = partyRepository;
-        this.modelMapper = modelMapper;
-        this.candidateClientService = candidateClientService;
-    }
 
     public List<PartyOutput> getAll(){
         Type partyOutputListType = new TypeToken<List<PartyOutput>>() {
